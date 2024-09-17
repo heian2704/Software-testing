@@ -48,7 +48,7 @@ export default function Payment() {
       // Redirect after showing success message
       setTimeout(() => {
         router.push('/');
-      }, 2000); // Redirect after 5 seconds
+      }, 2000); // Redirect after 2 seconds
     }
   };
 
