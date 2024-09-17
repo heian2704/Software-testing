@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { rooms, roomAvailability } from '/Users/heian/Desktop/1:2024/Software Testing/HotelBookingApp/HotelBookingApp/hotel-booking-app/src/data/rooms.js';
+import { rooms, roomAvailability } from '../../data/rooms';
 
 const RoomOptions = () => {
   const router = useRouter();
