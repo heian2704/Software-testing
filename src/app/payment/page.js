@@ -27,7 +27,7 @@ export default function Payment() {
 
     // Example validation for card number (simple format check)
     if (cardNumber && !/^\d{9}$/.test(cardNumber)) {
-      newErrors.cardNumber = 'Card number must be 16 digits.';
+      newErrors.cardNumber = 'Card number must be 9 digits.';
     }
 
     // Example validation for CVV (simple format check)
@@ -45,8 +45,10 @@ export default function Payment() {
       // Simulate successful payment
       setPaymentSuccess(true);
       
-      // Optionally, you can redirect to a confirmation page
-      // router.push(`/confirmation?roomId=${roomId}&checkIn=${checkIn}&checkOut=${checkOut}`);
+      // Redirect after showing success message
+      setTimeout(() => {
+        router.push('/');
+      }, 2000); // Redirect after 5 seconds
     }
   };
 

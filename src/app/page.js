@@ -57,12 +57,7 @@ export default function Home() {
       {/* Top Navigation Bar */}
       <nav className="bg-blue-700 text-white p-4 shadow-md">
         <div className="container mx-auto flex items-center justify-between">
-          <div className="text-xl font-bold">Hotel Luxe</div>
-          <div>
-            <a href="/" className="hover:underline">Home</a>
-            <a href="/about" className="ml-4 hover:underline">About Us</a>
-            <a href="/contact" className="ml-4 hover:underline">Contact</a>
-          </div>
+          <div className="text-xl font-bold">Hotel Booking</div>
         </div>
       </nav>
       

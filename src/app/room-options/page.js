@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { rooms, roomAvailability } from '/Users/heian/Downloads/HotelBookingApp/HotelBookingApp/hotel-booking-app/src/data/rooms.js';
+import { rooms, roomAvailability } from '/Users/heian/Desktop/1:2024/Software Testing/HotelBookingApp/HotelBookingApp/hotel-booking-app/src/data/rooms.js';
 
-export default function RoomOptions() {
+const RoomOptions = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [checkIn, setCheckIn] = useState(searchParams.get('checkIn') || '');
@@ -61,7 +61,7 @@ export default function RoomOptions() {
   const applyFilters = (roomsList) => {
     return roomsList.filter(room => {
       const typeMatch = roomTypeFilter === 'All' || room.name.includes(roomTypeFilter);
-      const guestsMatch = maxGuestsFilter === 'All' || room.maxGuests <= parseInt(maxGuestsFilter, 10);
+      const guestsMatch = maxGuestsFilter === 'All' || room.maxGuests === parseInt(maxGuestsFilter, 10);
       const priceMatch = priceRangeFilter === 'All' || (room.price >= parseFloat(priceRangeFilter.split('-')[0]) && room.price <= parseFloat(priceRangeFilter.split('-')[1]));
 
       return typeMatch && guestsMatch && priceMatch;
@@ -69,6 +69,7 @@ export default function RoomOptions() {
   };
 
   const handleBooking = (roomId) => {
+    // Navigate to the payment page with roomId, checkIn, and checkOut as query parameters
     router.push(`/payment?roomId=${roomId}&checkIn=${checkIn}&checkOut=${checkOut}`);
   };
 
@@ -102,6 +103,7 @@ export default function RoomOptions() {
             className="border px-3 py-2 rounded-md text-black"
           >
             <option value="All">Max Guests</option>
+            <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
             <option value="4">4</option>
@@ -175,4 +177,6 @@ export default function RoomOptions() {
       </div>
     </div>
   );
-}
+};
+
+export default RoomOptions;
