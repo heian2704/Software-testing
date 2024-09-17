@@ -69,7 +69,7 @@ export default function RoomOptions() {
   };
 
   const handleBooking = (roomId) => {
-    router.push(`/booking?roomId=${roomId}&checkIn=${checkIn}&checkOut=${checkOut}`);
+    router.push(`/payment?roomId=${roomId}&checkIn=${checkIn}&checkOut=${checkOut}`);
   };
 
   return (
