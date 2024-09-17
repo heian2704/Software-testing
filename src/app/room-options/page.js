@@ -1,14 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { rooms, roomAvailability } from '../../data/rooms';
 
 const RoomOptions = () => {
   const router = useRouter();
-  const { query } = router;
-  const searchParams = query; // Accessing query parameters
-
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [availableRooms, setAvailableRooms] = useState([]);
@@ -17,37 +14,26 @@ const RoomOptions = () => {
   const [roomTypeFilter, setRoomTypeFilter] = useState('All');
   const [maxGuestsFilter, setMaxGuestsFilter] = useState('All');
   const [priceRangeFilter, setPriceRangeFilter] = useState('All');
-  const [loading, setLoading] = useState(true);
-
-  const handleBooking = useCallback((roomId) => {
-    router.push(`/payment?roomId=${roomId}&checkIn=${checkIn}&checkOut=${checkOut}`);
-  }, [router, checkIn, checkOut]);
-
-  const applyFilters = useCallback((roomsList) => {
-    return roomsList.filter((room) => {
-      const typeMatch = roomTypeFilter === 'All' || room.name.includes(roomTypeFilter);
-      const guestsMatch = maxGuestsFilter === 'All' || room.maxGuests === parseInt(maxGuestsFilter, 10);
-      const priceMatch = priceRangeFilter === 'All' || (room.price >= parseFloat(priceRangeFilter.split('-')[0]) && room.price <= parseFloat(priceRangeFilter.split('-')[1]));
-
-      return typeMatch && guestsMatch && priceMatch;
-    });
-  }, [roomTypeFilter, maxGuestsFilter, priceRangeFilter]);
 
   useEffect(() => {
-    if (searchParams) {
-      setCheckIn(searchParams.checkIn || '');
-      setCheckOut(searchParams.checkOut || '');
-      setLoading(false);
+    const query = new URLSearchParams(window.location.search);
+    const checkInParam = query.get('checkIn');
+    const checkOutParam = query.get('checkOut');
+
+    if (checkInParam && checkOutParam) {
+      setCheckIn(checkInParam);
+      setCheckOut(checkOutParam);
     }
-  }, [searchParams]);
+  }, []);
 
   useEffect(() => {
     if (checkIn && checkOut) {
       const startDate = new Date(checkIn);
       const endDate = new Date(checkOut);
 
-      const available = rooms.filter((room) => {
-        const isAvailable = Object.keys(roomAvailability).every((date) => {
+      // Filter rooms based on availability
+      const available = rooms.filter(room => {
+        const isAvailable = Object.keys(roomAvailability).every(date => {
           const dateObj = new Date(date);
           if (dateObj >= startDate && dateObj <= endDate) {
             return roomAvailability[date].includes(room.id);
@@ -57,8 +43,8 @@ const RoomOptions = () => {
         return isAvailable;
       });
 
-      const unavailable = rooms.filter((room) => {
-        const isUnavailable = Object.keys(roomAvailability).some((date) => {
+      const unavailable = rooms.filter(room => {
+        const isUnavailable = Object.keys(roomAvailability).some(date => {
           const dateObj = new Date(date);
           if (dateObj >= startDate && dateObj <= endDate) {
             return !roomAvailability[date].includes(room.id);
@@ -68,6 +54,7 @@ const RoomOptions = () => {
         return isUnavailable;
       });
 
+      // Apply filters
       const filteredAvailable = applyFilters(available);
       const filteredUnavailable = applyFilters(unavailable);
 
@@ -81,13 +68,22 @@ const RoomOptions = () => {
     }
   }, [checkIn, checkOut, roomTypeFilter, maxGuestsFilter, priceRangeFilter]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const applyFilters = (roomsList) => {
+    return roomsList.filter(room => {
+      const typeMatch = roomTypeFilter === 'All' || room.name.includes(roomTypeFilter);
+      const guestsMatch = maxGuestsFilter === 'All' || room.maxGuests === parseInt(maxGuestsFilter, 10);
+      const priceMatch = priceRangeFilter === 'All' || (
+        room.price >= parseFloat(priceRangeFilter.split('-')[0]) &&
+        room.price <= parseFloat(priceRangeFilter.split('-')[1])
+      );
 
-  if (!router.isReady) {
-    return <div>Loading...</div>;
-  }
+      return typeMatch && guestsMatch && priceMatch;
+    });
+  };
+
+  const handleBooking = (roomId) => {
+    router.push(`/payment?roomId=${roomId}&checkIn=${checkIn}&checkOut=${checkOut}`);
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100">
@@ -147,7 +143,7 @@ const RoomOptions = () => {
         {error && <div className="mb-4 text-red-500">{error}</div>}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {availableRooms.map((room) => (
+          {availableRooms.map(room => (
             <div key={room.id} className="bg-gray-200 p-4 rounded-md shadow-lg">
               <h2 className="text-lg font-semibold text-black">{room.name}</h2>
               <p className="text-black">Price: ${room.price} per night</p>
@@ -168,15 +164,31 @@ const RoomOptions = () => {
         {unavailableRooms.length > 0 && (
           <div className="mt-8">
             <h2 className="text-xl font-bold text-red-500">Unavailable Rooms</h2>
-            <ul className="list-disc pl-4">
-              {unavailableRooms.map((room) => (
-                <li key={room.id} className="text-black">{room.name}</li>
-              ))}
-            </ul>
+            <table className="min-w-full bg-white border border-gray-200">
+              <thead>
+                <tr className="w-full bg-gray-200 border-b">
+                  <th className="py-2 px-4 text-left text-black">Room Type</th>
+                  <th className="py-2 px-4 text-left text-black">Price</th>
+                  <th className="py-2 px-4 text-left text-black">Max Guests</th>
+                  <th className="py-2 px-4 text-left text-black">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unavailableRooms.map(room => (
+                  <tr key={room.id} className="border-b">
+                    <td className="py-2 px-4 text-black">{room.name}</td>
+                    <td className="py-2 px-4 text-black">${room.price} per night</td>
+                    <td className="py-2 px-4 text-black">{room.maxGuests}</td>
+                    <td className="py-2 px-4 text-red-500">Unavailable</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
     </div>
   );
-}
+};
+
 export default RoomOptions;
