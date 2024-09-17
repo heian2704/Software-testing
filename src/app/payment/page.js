@@ -2,8 +2,17 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 export default function Payment() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PaymentPage />
+    </Suspense>
+  );
+}
+
+function PaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [roomId, setRoomId] = useState(searchParams.get('roomId') || '');
