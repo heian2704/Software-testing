@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { rooms, roomAvailability } from '../../data/rooms';
 
 export default function Payment() {
   return (
@@ -25,6 +26,26 @@ function PaymentPage() {
   const [cvv, setCvv] = useState('');
   const [errors, setErrors] = useState({});
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [totalCost, setTotalCost] = useState(0); // New state to hold the total cost
+
+  // Calculate number of nights between checkIn and checkOut
+  const calculateNights = (checkIn, checkOut) => {
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    const diffTime = Math.abs(checkOutDate - checkInDate);
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert milliseconds to days
+  };
+
+  // Calculate total cost when roomId, checkIn, or checkOut changes
+  useEffect(() => {
+    if (roomId && checkIn && checkOut) {
+      const selectedRoom = rooms.find((room) => room.id === roomId);
+      if (selectedRoom) {
+        const nights = calculateNights(checkIn, checkOut);
+        setTotalCost(selectedRoom.price * nights);
+      }
+    }
+  }, [roomId, checkIn, checkOut]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -72,6 +93,53 @@ function PaymentPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label htmlFor="roomId" className="block text-sm font-medium text-black">Room ID</label>
+              <input
+                type="text"
+                id="roomId"
+                value={roomId}
+                onChange={(e) => setRoomId(e.target.value)}
+                className="border px-3 py-2 rounded-md w-full border-gray-300 text-black"
+                disabled
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="checkIn" className="block text-sm font-medium text-black">Check-In</label>
+              <input
+                type="text"
+                id="checkIn"
+                value={checkIn}
+                onChange={(e) => setCheckIn(e.target.value)}
+                className="border px-3 py-2 rounded-md w-full border-gray-300 text-black"
+                disabled
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="checkOut" className="block text-sm font-medium text-black">Check-Out</label>
+              <input
+                type="text"
+                id="checkOut"
+                value={checkOut}
+                onChange={(e) => setCheckOut(e.target.value)}
+                className="border px-3 py-2 rounded-md w-full border-gray-300 text-black"
+                disabled
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="totalCost" className="block text-sm font-medium text-black">Total Cost</label>
+              <input
+                type="text"
+                id="totalCost"
+                value={`$${totalCost}`}
+                className="border px-3 py-2 rounded-md w-full border-gray-300 text-black"
+                disabled
+              />
+            </div>
+
             <div className="mb-4">
               <label htmlFor="cardNumber" className="block text-sm font-medium text-black">Card Number</label>
               <input
